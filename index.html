@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --neon: #ff2d55; --bg: #050505; }
-        
         body {
             margin: 0; background: var(--bg); color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -23,10 +22,19 @@
             border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-size: 3rem; cursor: pointer;
             transition: 0.2s; border: 2px solid #333;
-            -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; 
+            -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+            animation: pulse 1.2s infinite; /* Visual heartbeat for iPhone */
         }
 
-        #heart-core.active { background: var(--neon); box-shadow: 0 0 70px var(--neon); transform: scale(1.1); border-color: #fff; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        #heart-core.active { background: var(--neon); box-shadow: 0 0 70px var(--neon); animation: none; transform: scale(1.2); }
 
         .bar { width: 200px; height: 4px; background: #111; margin-top: 30px; border-radius: 10px; overflow: hidden; }
         #progress { width: 0%; height: 100%; background: var(--neon); }
@@ -39,12 +47,11 @@
         button {
             padding: 15px 35px; border: 2px solid var(--neon); background: transparent;
             color: var(--neon); cursor: pointer; font-size: 1.1rem; border-radius: 30px;
-            transition: 0.3s; font-weight: 600;
+            transition: 0.3s; font-weight: 600; outline: none;
         }
 
         button:hover { background: var(--neon); color: #fff; }
 
-        /* Ensuring pages are completely hidden when not active */
         #final-message, #ultimate-message { 
             display: none; position: fixed; inset: 0; 
             background: #fff; color: #1a1a1a; 
@@ -54,8 +61,7 @@
 
         #serious-overlay {
             display: none; position: fixed; inset: 0;
-            background: #000; /* Solid background to prevent overlap */
-            z-index: 200;
+            background: #000; z-index: 200;
             color: white; flex-direction: column; align-items: center;
             justify-content: center; text-align: center; padding: 20px;
         }
@@ -67,8 +73,18 @@
             100% { transform: translate(1px, -1px); }
         }
 
-        .serious-btns { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; align-items: center; }
-        #noWayBtn { border-color: #444; color: #444; font-size: 0.9rem; padding: 10px 20px; }
+        /* Fixed button container for Serious page */
+        .serious-btns { 
+            position: relative; 
+            margin-top: 40px; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 20px; 
+        }
+
+        #noWayBtn { border-color: #444; color: #444; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -99,7 +115,7 @@
 
     <div id="serious-overlay">
         <p class="shake-text">IM SERIOUSSS</p>
-        <h2 style="font-size: 1.5rem; margin: 20px 0;">YOU GONNA CUT THE CLASS AND COME WITH MEE FRFR</h2>
+        <h2 style="font-size: 1.3rem; margin: 20px 0; line-height: 1.4;">YOU GONNA CUT THE CLASS AND COME WITH MEE FRFR</h2>
         <p style="font-size: 1.2rem;">NO QUESTIONS ASKED😩😭</p>
         <div class="serious-btns">
             <button onclick="ultimateReveal()" style="border-color: white; color: white;">PROMISE 😭🫡</button>
@@ -116,7 +132,7 @@
     </div>
 
     <script>
-        let charge = 0; let timer; let vibTimer;
+        let charge = 0; let timer;
         const heart = document.getElementById('heart-core');
         
         heart.addEventListener('pointerdown', (e) => { e.preventDefault(); startSync(); });
@@ -125,60 +141,46 @@
 
         function startSync() {
             heart.classList.add('active');
-            if (navigator.vibrate) { vibTimer = setInterval(() => { navigator.vibrate([60, 30, 60]); }, 700); }
             timer = setInterval(() => {
                 charge += 2; document.getElementById('progress').style.width = charge + "%";
-                if (charge >= 100) { clearInterval(timer); clearInterval(vibTimer); unlock(); }
+                if (charge >= 100) { clearInterval(timer); unlock(); }
             }, 40);
         }
 
         function stopSync() {
-            heart.classList.remove('active'); clearInterval(timer); clearInterval(vibTimer);
+            heart.classList.remove('active'); clearInterval(timer);
             if (charge < 100) { charge = 0; document.getElementById('progress').style.width = "0%"; }
         }
 
         function unlock() { 
             document.getElementById('ui-box').style.display = 'none'; 
             document.getElementById('secret-wrap').style.display = 'block'; 
-            if (navigator.vibrate) navigator.vibrate(400); 
         }
 
         function dodge(btn) { 
+            // Ensures the button jumps to a clear spot on the screen
+            const maxX = window.innerWidth - btn.offsetWidth;
+            const maxY = window.innerHeight - btn.offsetHeight;
             btn.style.position = 'fixed'; 
-            btn.style.left = Math.random() * (window.innerWidth - 150) + 'px'; 
-            btn.style.top = Math.random() * (window.innerHeight - 50) + 'px'; 
+            btn.style.left = Math.random() * maxX + 'px'; 
+            btn.style.top = Math.random() * maxY + 'px'; 
         }
 
         function accessGranted() {
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff2d55', '#ffb3c1'] });
-            
-            // Hide the question
             document.getElementById('secret-wrap').style.display = 'none';
-            
-            // Show first final message
-            const finalMsg = document.getElementById('final-message');
-            finalMsg.style.display = 'flex';
+            document.getElementById('final-message').style.display = 'flex';
             document.body.style.background = "#fff";
 
-            // Trigger the "Serious" overlay after delay
             setTimeout(() => {
-                // To prevent overlap, explicitly hide the first final message
-                finalMsg.style.display = 'none'; 
-                
-                const serious = document.getElementById('serious-overlay');
-                serious.style.display = 'flex';
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                document.getElementById('final-message').style.display = 'none'; 
+                document.getElementById('serious-overlay').style.display = 'flex';
             }, 3500);
         }
 
         function ultimateReveal() {
-            // Hide everything else
             document.getElementById('serious-overlay').style.display = 'none';
-            document.getElementById('final-message').style.display = 'none';
-            
-            // Show the actual final message
-            const ultimate = document.getElementById('ultimate-message');
-            ultimate.style.display = 'flex';
+            document.getElementById('ultimate-message').style.display = 'flex';
             document.body.style.background = "#fff";
             confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         }
