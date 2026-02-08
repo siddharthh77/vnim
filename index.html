@@ -88,7 +88,7 @@
         <p style="color: #888; margin-bottom: 40px;">I've been wanting to ask you this...</p>
         <h1 style="font-size: 2.2rem;">Will you be my Valentine?</h1>
         <div class="btn-grid">
-            <button onclick="accessGranted()">YASSSSS</button>
+            <button id="yasBtn" onclick="accessGranted()">YASSSSS</button>
             <button id="noBtn" onmouseover="dodge(this)" ontouchstart="dodge(this)">No</button>
         </div>
     </div>
@@ -106,7 +106,7 @@
         <h2 style="font-size: 1.3rem; margin: 20px 0; line-height: 1.4;">YOU GONNA CUT THE CLASS AND COME WITH MEE FRFR</h2>
         <p style="font-size: 1.2rem;">NO QUESTIONS ASKED😩😭</p>
         <div class="serious-btns">
-            <button onclick="ultimateReveal()" style="border-color: white; color: white;">PROMISE 😭🫡</button>
+            <button id="realPromiseBtn" onclick="ultimateReveal()" style="border-color: white; color: white; pointer-events: none; opacity: 0.5;">PROMISE 😭🫡</button>
             <button id="noWayBtn" onmouseover="dodge(this)" ontouchstart="dodge(this)">AINT GONNA MAKE IT :(</button>
         </div>
     </div>
@@ -129,6 +129,7 @@
 
         function startSync() {
             heart.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50]); // Android support
             timer = setInterval(() => {
                 charge += 2; document.getElementById('progress').style.width = charge + "%";
                 if (charge >= 100) { clearInterval(timer); unlock(); }
@@ -162,6 +163,14 @@
             setTimeout(() => {
                 document.getElementById('final-message').style.display = 'none'; 
                 document.getElementById('serious-overlay').style.display = 'flex';
+                
+                // FIX: Only make the promise button clickable AFTER it has appeared for 1 second
+                setTimeout(() => {
+                    const pBtn = document.getElementById('realPromiseBtn');
+                    pBtn.style.pointerEvents = 'auto';
+                    pBtn.style.opacity = '1';
+                }, 1000);
+
             }, 3500);
         }
 
