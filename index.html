@@ -44,6 +44,7 @@
 
         button:hover { background: var(--neon); color: #fff; }
 
+        /* Ensuring pages are completely hidden when not active */
         #final-message, #ultimate-message { 
             display: none; position: fixed; inset: 0; 
             background: #fff; color: #1a1a1a; 
@@ -53,7 +54,8 @@
 
         #serious-overlay {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.95); z-index: 200;
+            background: #000; /* Solid background to prevent overlap */
+            z-index: 200;
             color: white; flex-direction: column; align-items: center;
             justify-content: center; text-align: center; padding: 20px;
         }
@@ -97,8 +99,8 @@
 
     <div id="serious-overlay">
         <p class="shake-text">IM SERIOUSSS</p>
-        <h2 style="font-size: 2rem; margin: 20px 0;">YOU GONNA CUT THE CLASS AND COME WITH MEE FRFR</h2>
-        <p style="font-size: 1.5rem;">NO QUESTIONS ASKED😩😭</p>
+        <h2 style="font-size: 1.5rem; margin: 20px 0;">YOU GONNA CUT THE CLASS AND COME WITH MEE FRFR</h2>
+        <p style="font-size: 1.2rem;">NO QUESTIONS ASKED😩😭</p>
         <div class="serious-btns">
             <button onclick="ultimateReveal()" style="border-color: white; color: white;">PROMISE 😭🫡</button>
             <button id="noWayBtn" onmouseover="dodge(this)" ontouchstart="dodge(this)">AINT GONNA MAKE IT :(</button>
@@ -106,19 +108,17 @@
     </div>
 
     <div id="ultimate-message">
-        <h1 style="font-size: 2.2rem; line-height: 1.3;">Ofccc baby ik you would cut the class for me. ❤️</h1>
-        <p style="font-size: 1.4rem; color: #444; margin: 30px 0;">
-            Im so excited to go out w uuuuu. see u then😩😘
+        <h1 style="font-size: 2rem; line-height: 1.3;">ofccc baby ik you would cut the class for me. ❤️</h1>
+        <p style="font-size: 1.2rem; color: #444; margin: 30px 0;">
+            im so excited to go out w uuuuu. see u then😩😘
         </p>
         <div style="font-size: 3rem;">💋✨🌹</div>
     </div>
 
     <script>
-        let charge = 0;
-        let timer;
-        let vibTimer;
+        let charge = 0; let timer; let vibTimer;
         const heart = document.getElementById('heart-core');
-
+        
         heart.addEventListener('pointerdown', (e) => { e.preventDefault(); startSync(); });
         window.addEventListener('pointerup', stopSync);
         window.addEventListener('pointercancel', stopSync);
@@ -127,47 +127,58 @@
             heart.classList.add('active');
             if (navigator.vibrate) { vibTimer = setInterval(() => { navigator.vibrate([60, 30, 60]); }, 700); }
             timer = setInterval(() => {
-                charge += 2;
-                document.getElementById('progress').style.width = charge + "%";
+                charge += 2; document.getElementById('progress').style.width = charge + "%";
                 if (charge >= 100) { clearInterval(timer); clearInterval(vibTimer); unlock(); }
             }, 40);
         }
 
         function stopSync() {
-            heart.classList.remove('active');
-            clearInterval(timer); clearInterval(vibTimer);
+            heart.classList.remove('active'); clearInterval(timer); clearInterval(vibTimer);
             if (charge < 100) { charge = 0; document.getElementById('progress').style.width = "0%"; }
         }
 
-        function unlock() {
-            document.getElementById('ui-box').style.display = 'none';
-            document.getElementById('secret-wrap').style.display = 'block';
-            if (navigator.vibrate) navigator.vibrate(400);
+        function unlock() { 
+            document.getElementById('ui-box').style.display = 'none'; 
+            document.getElementById('secret-wrap').style.display = 'block'; 
+            if (navigator.vibrate) navigator.vibrate(400); 
         }
 
-        function dodge(btn) {
-            btn.style.position = 'fixed';
-            btn.style.left = Math.random() * (window.innerWidth - 150) + 'px';
-            btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+        function dodge(btn) { 
+            btn.style.position = 'fixed'; 
+            btn.style.left = Math.random() * (window.innerWidth - 150) + 'px'; 
+            btn.style.top = Math.random() * (window.innerHeight - 50) + 'px'; 
         }
 
         function accessGranted() {
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff2d55', '#ffb3c1'] });
+            
+            // Hide the question
+            document.getElementById('secret-wrap').style.display = 'none';
+            
+            // Show first final message
+            const finalMsg = document.getElementById('final-message');
+            finalMsg.style.display = 'flex';
+            document.body.style.background = "#fff";
+
+            // Trigger the "Serious" overlay after delay
             setTimeout(() => {
-                document.getElementById('secret-wrap').style.display = 'none';
-                document.getElementById('final-message').style.display = 'flex';
-                document.body.style.background = "#fff";
-                setTimeout(() => {
-                    document.getElementById('serious-overlay').style.display = 'flex';
-                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                }, 3500);
-            }, 600);
+                // To prevent overlap, explicitly hide the first final message
+                finalMsg.style.display = 'none'; 
+                
+                const serious = document.getElementById('serious-overlay');
+                serious.style.display = 'flex';
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            }, 3500);
         }
 
         function ultimateReveal() {
+            // Hide everything else
             document.getElementById('serious-overlay').style.display = 'none';
             document.getElementById('final-message').style.display = 'none';
-            document.getElementById('ultimate-message').style.display = 'flex';
+            
+            // Show the actual final message
+            const ultimate = document.getElementById('ultimate-message');
+            ultimate.style.display = 'flex';
             document.body.style.background = "#fff";
             confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         }
